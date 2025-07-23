@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles for Smriti Pustkalaya */
+.gradient-bg {
+  background: linear-gradient(135deg, #d97748 0%, #35955b 100%);
+}
+
+.card-shadow {
+  box-shadow: 0 4px 6px -1px rgba(217, 119, 72, 0.1), 0 2px 4px -1px rgba(217, 119, 72, 0.06);
+}
+
+.hover-scale {
+  transition: transform 0.2s ease-in-out;
+}
+
+.hover-scale:hover {
+  transform: scale(1.02);
+}
