@@ -4,11 +4,11 @@
 
 /* Custom styles for Smriti Pustkalaya */
 .gradient-bg {
-  background: linear-gradient(135deg, #d97748 0%, #35955b 100%);
+  background: linear-gradient(135deg, #0077B6 0%, #023E8A 100%);
 }
 
 .card-shadow {
-  box-shadow: 0 4px 6px -1px rgba(217, 119, 72, 0.1), 0 2px 4px -1px rgba(217, 119, 72, 0.06);
+  box-shadow: 0 4px 6px -1px rgba(0, 119, 182, 0.1), 0 2px 4px -1px rgba(0, 119, 182, 0.06);
 }
 
 .hover-scale {
