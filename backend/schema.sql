@@ -1,0 +1,17 @@
+CREATE DATABASE IF NOT EXISTS admin_pustakalay;
+USE admin_pustakalay;
+
+CREATE TABLE IF NOT EXISTS books (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  author VARCHAR(255),
+  published_year INT,
+  genre VARCHAR(100)
+);
+
+CREATE TABLE IF NOT EXISTS donors (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255),
+  donated_books INT DEFAULT 0
+); 

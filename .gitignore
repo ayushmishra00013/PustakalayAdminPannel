@@ -108,3 +108,7 @@ jspm_packages/
 # Package lock files (choose one)
 package-lock.json
 # yarn.lock
+
+# Ignore environment files
+backend/.env
+backend/test.env

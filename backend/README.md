@@ -1,54 +1,47 @@
 # Pustakalay Admin Backend
 
-## Setup
+## Prerequisites
+- Node.js (v18+ recommended)
+- MySQL
 
-1. Install dependencies:
-   ```
-   npm install
-   ```
-2. Create a `.env` file in the backend folder:
-   ```
-   PORT=5000
-   DB_HOST=localhost
-   DB_USER=root
-   DB_PASSWORD=yourpassword
-   DB_NAME=pustakalay
-   ```
-3. Start the server:
-   ```
-   npm run dev
-   ```
+## Setup Instructions
 
-## MySQL Table Setup
-
-Run these SQL commands in your MySQL client to create the required tables:
-
-```sql
-CREATE DATABASE IF NOT EXISTS pustakalay;
-USE pustakalay;
-
-CREATE TABLE IF NOT EXISTS books (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  title VARCHAR(255) NOT NULL,
-  author VARCHAR(255),
-  published_year INT,
-  genre VARCHAR(100)
-);
-
-CREATE TABLE IF NOT EXISTS donors (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
-  email VARCHAR(255),
-  donated_books INT DEFAULT 0
-);
+### 1. Clone the repository
+```
+git clone <your-repo-url>
+cd PustakalayAdminPannel
 ```
 
-## API Endpoints
+### 2. Set up the database
+- Open MySQL Workbench or your MySQL CLI.
+- Run the SQL in `backend/schema.sql` to create the database and tables:
+  - In Workbench: File > Open SQL Script > select `schema.sql` > Run
+  - In CLI: `mysql -u root -p < backend/schema.sql`
 
-- `GET /api/books` — List all books
-- `GET /api/donors` — List all donors
-- `GET /api/health` — Health check
+### 3. Configure environment variables
+- Copy `backend/.env.example` to `backend/.env` (or `test.env` if your code uses that)
+- Edit the file and fill in your MySQL username and password
 
-## CORS
+### 4. Install dependencies
+```
+cd backend
+npm install
+cd ../
+npm install
+```
 
-CORS is enabled for all origins by default. 
+### 5. Run the backend
+```
+cd backend
+npm run dev
+```
+
+### 6. Run the frontend
+```
+npm start
+```
+
+## Notes
+- Do NOT commit your real `.env` file to git.
+- If you want to use a different database name, update both the SQL and your `.env` file.
+- For any issues, check your MySQL credentials and that the database is running. 
