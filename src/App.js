@@ -1,6 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import './styles/tailwind.css';
-import { donorsData, booksData } from './data/dummyData';
+import { donorsData } from './data/dummyData';
+import { fetchBooks, fetchDonors } from './data/api';
 import FilterPanel from './components/FilterPanel';
 import DonorList from './components/DonorList';
 import BookList from './components/BookList';
@@ -14,37 +15,49 @@ function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [dateFilter, setDateFilter] = useState({ start: '', end: '' });
-  const [donors, setDonors] = useState(donorsData);
-  const [books, setBooks] = useState(booksData);
+  const [donors, setDonors] = useState([]);
+  const [books, setBooks] = useState([]);
+  const [booksLoading, setBooksLoading] = useState(true);
+  const [booksError, setBooksError] = useState(null);
+
+  // Fetch donors from backend
+  useEffect(() => {
+    fetchDonors()
+      .then(setDonors)
+      .catch(() => setDonors([]));
+  }, []);
+
+  // Fetch books from backend
+  useEffect(() => {
+    setBooksLoading(true);
+    fetchBooks()
+      .then(setBooks)
+      .catch(err => setBooksError(err.message))
+      .finally(() => setBooksLoading(false));
+  }, []);
 
   // Filter functions
   const filteredDonors = useMemo(() => {
     return donors.filter(donor => {
       const matchesSearch = donor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           donor.contact.includes(searchTerm);
-      
+        (donor.contact && donor.contact.includes(searchTerm));
+      const matchesCategory = !categoryFilter || (donor.category === categoryFilter);
       const matchesDate = (!dateFilter.start || new Date(donor.donationDate) >= new Date(dateFilter.start)) &&
-                         (!dateFilter.end || new Date(donor.donationDate) <= new Date(dateFilter.end));
-      
-      return matchesSearch && matchesDate;
+        (!dateFilter.end || new Date(donor.donationDate) <= new Date(dateFilter.end));
+      return matchesSearch && matchesCategory && matchesDate;
     });
-  }, [donors, searchTerm, dateFilter]);
+  }, [donors, searchTerm, categoryFilter, dateFilter]);
 
   const filteredBooks = useMemo(() => {
     return books.filter(book => {
-      const donor = donors.find(d => d.id === book.donorId);
-      const matchesSearch = book.bookName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           book.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           (donor && donor.name.toLowerCase().includes(searchTerm.toLowerCase()));
-      
-      const matchesCategory = !categoryFilter || book.category === categoryFilter;
-      
-      const matchesDate = (!dateFilter.start || !donor || new Date(donor.donationDate) >= new Date(dateFilter.start)) &&
-                         (!dateFilter.end || !donor || new Date(donor.donationDate) <= new Date(dateFilter.end));
-      
-      return matchesSearch && matchesCategory && matchesDate;
+      const matchesSearch =
+        (book.title && book.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (book.author && book.author.toLowerCase().includes(searchTerm.toLowerCase()));
+      const matchesCategory = !categoryFilter || (book.genre === categoryFilter);
+      // No date filter for now (unless you want to filter by published_year)
+      return matchesSearch && matchesCategory;
     });
-  }, [books, donors, searchTerm, categoryFilter, dateFilter]);
+  }, [books, searchTerm, categoryFilter]);
 
   // Handler functions
   const handleLogin = (userId) => {
@@ -151,14 +164,14 @@ function App() {
       </header>
 
       {/* Navigation Tabs */}
-      <nav className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex space-x-8">
+      <nav className="bg-white shadow-sm border-b border-gray-200 w-full">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
+          <div className="flex flex-wrap space-x-2 sm:space-x-8 overflow-x-auto">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                className={`py-2 sm:py-4 px-2 sm:px-1 border-b-2 font-medium text-sm transition-colors ${
                   activeTab === tab.id
                     ? 'border-primary-500 text-primary-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -173,13 +186,14 @@ function App() {
       </nav>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8 w-full">
         {/* Filter Panel - Show only for donors and books tabs */}
         {(activeTab === 'donors' || activeTab === 'books') && (
           <FilterPanel
             onSearch={handleSearch}
             onFilter={handleFilter}
             onDateFilter={handleDateFilter}
+            categoryFilter={categoryFilter}
           />
         )}
 
@@ -194,19 +208,17 @@ function App() {
         )}
 
         {activeTab === 'books' && (
-          <BookList
-            books={filteredBooks}
-            donors={donors}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
+          booksLoading ? (
+            <div className="text-center py-8 text-lg">Loading books...</div>
+          ) : booksError ? (
+            <div className="text-center py-8 text-red-600">Error: {booksError}</div>
+          ) : (
+            <BookList books={filteredBooks} />
+          )
         )}
 
         {activeTab === 'reports' && (
-          <DownloadReport
-            donors={donors}
-            books={books}
-          />
+          <DownloadReport donors={donors} books={books} />
         )}
       </main>
 
